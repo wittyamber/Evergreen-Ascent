@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body.auth-page {
+    background-image: url('/images/auth-bg.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
