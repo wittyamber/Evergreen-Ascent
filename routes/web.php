@@ -1,92 +1,133 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Applicant\DashboardController;
 
-// The homepage is now the public job listing page.
-Route::get('/', [App\Http\Controllers\JobPostingController::class, 'index'])->name('jobs.index');
-// This is the route for viewing a single public job.
-Route::get('/jobs/{job}', [App\Http\Controllers\JobPostingController::class, 'show'])->name('jobs.show');
+// Controllers - General
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\JobPostingController;
+use App\Http\Controllers\ApplicationController;
 
-Route::get('/dashboard', function () {
-    $user = auth()->user();
+// Controllers - Applicant
+use App\Http\Controllers\Applicant\DashboardController as ApplicantDashboardController;
+use App\Http\Controllers\Applicant\ApplicationController as ApplicantAppController;
+use App\Http\Controllers\Applicant\InterviewController as ApplicantInterviewController;
 
-    if ($user->role === 'admin' || $user->role === 'hr') {
-        return redirect()->route('hr.dashboard');
-    }
+// Controllers - HR
+use App\Http\Controllers\Hr\DashboardController as HrDashboardController;
+use App\Http\Controllers\Hr\JobPostingController as HrJobController;
+use App\Http\Controllers\Hr\ApplicationController as HrAppController;
+use App\Http\Controllers\Hr\ApplicationNoteController;
+use App\Http\Controllers\Hr\InterviewController as HrInterviewController;
+use App\Http\Controllers\Hr\ApplicationMessageController;
 
-    // Default for applicants
-    return view('dashboard');
+// Controllers - Admin
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\SystemSettingsController;
 
-
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // Add this line for submitting an application
-    Route::post('/jobs/{job}/apply', [App\Http\Controllers\ApplicationController::class, 'store'])->name('applications.store');
-
-    // ADD THIS ROUTE FOR THE APPLICANT'S APPLICATION LIST
-    Route::get('/my-applications', [App\Http\Controllers\Applicant\ApplicationController::class, 'index'])->name('applicant.applications.index');
-
-    Route::put('/interviews/{interview}/confirm', [App\Http\Controllers\Applicant\InterviewController::class, 'update'])->name('applicant.interviews.update');
-
-    // ADD this GET route for the reschedule form
-    Route::get('/interviews/{interview}/reschedule', [App\Http\Controllers\Applicant\InterviewController::class, 'showRescheduleForm'])->name('applicant.interviews.reschedule.show');
-
-    // ADD this PUT route to process the reschedule request
-    Route::put('/interviews/{interview}/reschedule', [App\Http\Controllers\Applicant\InterviewController::class, 'processRescheduleRequest'])->name('applicant.interviews.reschedule.store');
-});
+/*
+|--------------------------------------------------------------------------
+| 1. PUBLIC ROUTES (No Login Required)
+|--------------------------------------------------------------------------
+*/
+Route::get('/', [JobPostingController::class, 'index'])->name('jobs.index');
+Route::get('/jobs/{job}', [JobPostingController::class, 'show'])->name('jobs.show');
 
 require __DIR__.'/auth.php';
 
-// =============================================================
-// HR & ADMIN ROUTES
-// =============================================================
-Route::middleware(['auth', 'role:hr,admin'])->prefix('hr')->group(function () {
-    Route::get('/dashboard', [App\Http\Controllers\Hr\DashboardController::class, 'index'])->name('hr.dashboard');
+/*
+|--------------------------------------------------------------------------
+| 2. AUTHENTICATED COMMON ROUTES (Profile, etc.)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->group(function () {
+    
+    // --- THE TRAFFIC CONTROLLER ---
+    // This is the ONE AND ONLY /dashboard route. 
+    // It decides where you go based on your role.
+    Route::get('/dashboard', function () {
+        $user = auth()->user();
 
-    // Add this new route for viewing applications for a job
-    Route::get('/jobs/{job}/applications', [App\Http\Controllers\Hr\ApplicationController::class, 'index'])->name('hr.jobs.applications.index');
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+        
+        if ($user->role === 'hr') {
+            return redirect()->route('hr.dashboard');
+        }
 
-    // ADD A ROUTE FOR SHOWING A SINGLE APPLICATION
-    Route::get('/applications/{application}', [App\Http\Controllers\Hr\ApplicationController::class, 'show'])->name('hr.applications.show');
+        // If Applicant, show the applicant dashboard directly
+        return app(ApplicantDashboardController::class)->index();
+    })->name('dashboard');
 
-    // ADD THIS ROUTE FOR UPDATING THE STATUS
-    Route::put('/applications/{application}', [App\Http\Controllers\Hr\ApplicationController::class, 'update'])->name('hr.applications.update');
+    // Profile Management
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
 
-    // ADD THIS ROUTE FOR STORING A NOTE
-    Route::post('/applications/{application}/notes', [App\Http\Controllers\Hr\ApplicationNoteController::class, 'store'])->name('hr.applications.notes.store');
+/*
+|--------------------------------------------------------------------------
+| 3. APPLICANT ROUTES
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Applying for a job
+    Route::post('/jobs/{job}/apply', [ApplicationController::class, 'store'])->name('applications.store');
+    
+    // Managing Applications & Interviews
+    Route::get('/my-applications', [ApplicantAppController::class, 'index'])->name('applicant.applications.index');
+    
+    // Interview Actions
+    Route::put('/interviews/{interview}/confirm', [ApplicantInterviewController::class, 'update'])->name('applicant.interviews.update');
+    Route::get('/interviews/{interview}/reschedule', [ApplicantInterviewController::class, 'showRescheduleForm'])->name('applicant.interviews.reschedule.show');
+    Route::put('/interviews/{interview}/reschedule', [ApplicantInterviewController::class, 'processRescheduleRequest'])->name('applicant.interviews.reschedule.store');
+});
 
-    // Manually name the resource routes to ensure the 'hr.' prefix
-    Route::resource('jobs', App\Http\Controllers\Hr\JobPostingController::class)->names([
-        'index' => 'hr.jobs.index',
-        'create' => 'hr.jobs.create',
-        'store' => 'hr.jobs.store',
-        'show' => 'hr.jobs.show',
-        'edit' => 'hr.jobs.edit',
-        'update' => 'hr.jobs.update',
-        'destroy' => 'hr.jobs.destroy',
-    ]);
+/*
+|--------------------------------------------------------------------------
+| 4. HR ROUTES (Prefix: /hr)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified', 'role:hr,admin'])->prefix('hr')->name('hr.')->group(function () {
+    
+    Route::get('/dashboard', [HrDashboardController::class, 'index'])->name('dashboard');
 
-    // ADD THIS ROUTE for the interview creation form
-    Route::get('/applications/{application}/interviews/create', [App\Http\Controllers\Hr\InterviewController::class, 'create'])->name('hr.interviews.create');
+    // Job Management
+    Route::resource('jobs', HrJobController::class); // Names are auto-generated as hr.jobs.index, etc.
 
-    // INTERVIEW STORE ROUTE
-     Route::post('/applications/{application}/interviews/store', [App\Http\Controllers\Hr\InterviewController::class, 'store'])->name('hr.interviews.store');
+    // Application Management
+    Route::get('/jobs/{job}/applications', [HrAppController::class, 'index'])->name('jobs.applications.index');
+    Route::get('/applications/{application}', [HrAppController::class, 'show'])->name('applications.show');
+    Route::put('/applications/{application}', [HrAppController::class, 'update'])->name('applications.update');
+    
+    // Notes & Messages
+    Route::post('/applications/{application}/notes', [ApplicationNoteController::class, 'store'])->name('applications.notes.store');
+    Route::post('/applications/{application}/messages', [ApplicationMessageController::class, 'store'])->name('applications.messages.store');
 
-      // NEW ROUTE FOR THE CONSOLIDATED AGENDA
-    Route::get('/interviews', [App\Http\Controllers\Hr\InterviewController::class, 'index'])->name('hr.interviews.index');
+    // Interview Management
+    Route::get('/interviews', [HrInterviewController::class, 'index'])->name('interviews.index');
+    Route::get('/applications/{application}/interviews/create', [HrInterviewController::class, 'create'])->name('interviews.create');
+    Route::post('/applications/{application}/interviews/store', [HrInterviewController::class, 'store'])->name('interviews.store');
+    Route::delete('/interviews/{interview}', [HrInterviewController::class, 'destroy'])->name('interviews.destroy');
+});
 
-    // THIS ROUTE for cancelling an interview
-    Route::delete('/interviews/{interview}', [App\Http\Controllers\Hr\InterviewController::class, 'destroy'])->name('hr.interviews.destroy');
+/*
+|--------------------------------------------------------------------------
+| 5. ADMIN ROUTES (Prefix: /admin)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-    Route::post('/applications/{application}/messages', [App\Http\Controllers\Hr\ApplicationMessageController::class, 'store'])->name('hr.applications.messages.store');
+    // HR User Management
+    Route::resource('users', UserManagementController::class);
+
+    // System Settings
+    Route::get('/settings', [SystemSettingsController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [SystemSettingsController::class, 'update'])->name('settings.update');
+
+    // Audit Logs
+    Route::get('/audit-logs', [AdminDashboardController::class, 'logs'])->name('audit.logs');
 });
