@@ -1,9 +1,11 @@
 <x-guest-layout formSide="left">
-    <div class="flex justify-center mb-6">
+
+   <div class="flex flex-col items-center mb-6">
         <a href="/">
-            <x-application-logo class="w-12 h-12 text-evergreen" />
+            <x-application-logo :showText="false" imgClass="w-20 h-20" />
         </a>
     </div>
+    
     <h2 class="text-center text-2xl font-bold text-gray-800">Create an Account</h2>
     <p class="text-center text-sm text-gray-500 mb-6">Begin your journey with Evergreen Solutions.</p>
 

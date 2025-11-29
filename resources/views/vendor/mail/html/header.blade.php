@@ -1,21 +1,18 @@
 @props(['url'])
 
 <tr>
-<td class="header" align="center">
-<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-<tr>
-<td align="center">
-<a href="{{ $url }}" style="display: inline-block;">
-@if (file_exists(public_path('images/logo.png')))
-{{-- If a logo exists, display it --}}
-<img src="{{ asset('images/logo.png') }}" alt="{{ config('app.name') }} Logo" style="display: block; width: auto; max-height: 45px;" border="0">
-@else
-{{-- Fallback to text if no logo is found --}}
-{{ $slot }}
-@endif
-</a>
-</td>
-</tr>
-</table>
+<td class="header">
+    <a href="{{ $url }}" style="display: inline-block; text-decoration: none;">
+        <table cellpadding="0" cellspacing="0" role="presentation">
+            <tr>
+                <td style="vertical-align: middle;">
+                    <img src="{{ asset('logo.png') }}" class="logo" alt="Evergreen Ascent Logo" style="max-height: 40px; vertical-align: middle;">
+                </td>
+                <td style="vertical-align: middle; padding-left: 12px; font-size: 19px; font-weight: bold; color: #ffffff;">
+                    Evergreen Ascent
+                </td>
+            </tr>
+        </table>
+    </a>
 </td>
 </tr>

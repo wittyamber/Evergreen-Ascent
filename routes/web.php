@@ -24,14 +24,23 @@ use App\Http\Controllers\Hr\ApplicationMessageController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\SystemSettingsController;
+use App\Http\Controllers\PublicController;
 
 /*
 |--------------------------------------------------------------------------
 | 1. PUBLIC ROUTES (No Login Required)
 |--------------------------------------------------------------------------
 */
-Route::get('/', [JobPostingController::class, 'index'])->name('jobs.index');
-Route::get('/jobs/{job}', [JobPostingController::class, 'show'])->name('jobs.show');
+
+// 1. New Corporate Landing Pages
+Route::get('/', [PublicController::class, 'home'])->name('home');
+Route::get('/about', [PublicController::class, 'about'])->name('about');
+Route::get('/services', [PublicController::class, 'services'])->name('services');
+Route::get('/system', [PublicController::class, 'system'])->name('system');
+
+// 2. The Job Board (Moved to /careers)
+Route::get('/careers', [JobPostingController::class, 'index'])->name('jobs.index');
+Route::get('/careers/{job}', [JobPostingController::class, 'show'])->name('jobs.show');
 
 require __DIR__.'/auth.php';
 

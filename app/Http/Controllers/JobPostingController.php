@@ -13,13 +13,14 @@ class JobPostingController extends Controller
      */
     public function index(): View
     {
-        $jobPostings = JobPosting::where('status', 'Active')
-                                 ->latest()
-                                 ->get();
+        // 1. Fetch the jobs (Only active ones, usually)
+        $jobs = JobPosting::where('status', 'active') // Assuming you have a status column
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(10); 
+                    // If you don't have a 'status' column yet, just use: JobPosting::latest()->paginate(10);
 
-        return view('jobs.index', [
-            'jobPostings' => $jobPostings,
-        ]);
+        // 2. Return the view AND pass the $jobs variable
+        return view('jobs.index', compact('jobs')); 
     }
 
     /**
@@ -33,8 +34,7 @@ class JobPostingController extends Controller
             abort(404);
         }
 
-        return view('jobs.show', [
-            'job' => $job,
-        ]);
+        // Pass the single job to the show view
+        return view('jobs.show', compact('job'));
     }
 }

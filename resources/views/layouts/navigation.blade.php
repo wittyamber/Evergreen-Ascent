@@ -6,7 +6,11 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('jobs.index') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                        <x-application-logo 
+                            :showText="true" 
+                            imgClass="h-9 w-auto" 
+                            textClass="ml-3 text-xl font-bold text-white tracking-tight" /> 
+                            <!-- Changed 'text-white-800' to 'text-white' -->
                     </a>
                 </div>
 
