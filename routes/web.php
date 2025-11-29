@@ -91,6 +91,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/interviews/{interview}/confirm', [ApplicantInterviewController::class, 'update'])->name('applicant.interviews.update');
     Route::get('/interviews/{interview}/reschedule', [ApplicantInterviewController::class, 'showRescheduleForm'])->name('applicant.interviews.reschedule.show');
     Route::put('/interviews/{interview}/reschedule', [ApplicantInterviewController::class, 'processRescheduleRequest'])->name('applicant.interviews.reschedule.store');
+
+    Route::get('/my-applications/{application}', [ApplicantAppController::class, 'show'])
+        ->name('applicant.applications.show');
 });
 
 /*

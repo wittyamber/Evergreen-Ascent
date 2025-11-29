@@ -13,30 +13,21 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // Dispatcher Logic (stays the same)
+        // 1. Safety Redirect (Just in case an HR user stumbles here)
         if (in_array($user->role, ['admin', 'hr'])) {
             return redirect()->route('hr.dashboard');
         }
 
-        // --- Data Fetching for Applicant ---
+        // 2. Calculate Stats for the Dashboard Cards
+        $applicationsCount = $user->applications()->count();
 
-        // Get upcoming interviews (same as before)
-        $upcomingInterviews = $user->interviews()
-                                   ->where('interviews.status', 'Scheduled')
-                                   ->where('scheduled_at', '>=', now())
-                                   ->orderBy('scheduled_at', 'asc')
-                                   ->get();
-        
-        // NEW: Get all applications to display their progress
-        $applications = $user->applications()
-                                ->with('jobPosting')
-                                ->latest()
-                                ->get();
+        $interviewsCount = $user->interviews()
+                                ->where('interviews.status', 'Scheduled') // Explicit table name is safer
+                                ->where('scheduled_at', '>=', now())
+                                ->count();
 
-        // Return the applicant's dashboard view with all the data
-        return view('dashboard', [
-            'upcomingInterviews' => $upcomingInterviews,
-            'applications' => $applications, // CHANGED from 'activeApplications'
-        ]);
+        // 3. Return the specific Applicant View
+        // IMPORTANT: This points to resources/views/applicant/dashboard.blade.php
+        return view('applicant.dashboard', compact('applicationsCount', 'interviewsCount'));
     }
 }

@@ -50,17 +50,38 @@
 
                     <!-- APPLICANT LINKS -->
                     @if(auth()->user()->role === 'applicant')
-                        <a href="{{ route('applicant.applications.index') }}" 
-                           class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out 
-                           {{ request()->routeIs('applicant.applications.index') 
-                              ? 'border-white text-white' 
-                              : 'border-transparent text-emerald-200 hover:text-white hover:border-emerald-300' }}">
-                            {{ __('My Applications') }}
+                        <!-- 1. Dashboard -->
+                        <!-- <a href="{{ route('dashboard') }}" 
+                        class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out 
+                        {{ request()->routeIs('dashboard') 
+                            ? 'border-white text-white' 
+                            : 'border-transparent text-emerald-200 hover:text-white hover:border-emerald-300' }}">
+                            {{ __('Dashboard') }}
+                        </a> -->
+
+                        <!-- 2. Browse Jobs -->
+                        <a href="{{ route('jobs.index') }}" 
+                        class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out 
+                        {{ request()->routeIs('jobs.index') 
+                            ? 'border-white text-white' 
+                            : 'border-transparent text-emerald-200 hover:text-white hover:border-emerald-300' }}">
+                            {{ __('Browse Jobs') }}
                         </a>
 
-                        <a href="{{ route('jobs.index') }}" 
-                           class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out border-transparent text-emerald-200 hover:text-white hover:border-emerald-300">
-                            {{ __('Browse Jobs') }}
+                        <!-- 3. My Applications -->
+                        <a href="{{ route('applicant.applications.index') }}" 
+                        class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out 
+                        {{ request()->routeIs('applicant.applications.index') 
+                            ? 'border-white text-white' 
+                            : 'border-transparent text-emerald-200 hover:text-white hover:border-emerald-300' }}">
+                            {{ __('My Applications') }}
+                        </a>
+                        
+                        <!-- 4. Messages (Redirects to Applications for context, or a dedicated inbox if you built one) -->
+                        <!-- For now, we link this to applications because messages are usually attached to a specific job app -->
+                        <a href="{{ route('applicant.applications.index') }}" 
+                        class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out border-transparent text-emerald-200 hover:text-white hover:border-emerald-300">
+                            {{ __('Messages') }}
                         </a>
                     @endif
                 </div>
