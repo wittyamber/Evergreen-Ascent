@@ -16,10 +16,10 @@ class ApplicationController extends Controller
             return back()->with('error', 'Only applicants can apply for jobs.');
         }
 
-        // 2. Validation: Make sure a resume is uploaded
+        // 2. Validation: Resume is required, Cover Letter is an optional FILE now
         $request->validate([
-            'resume' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:2048'], // 2MB max
-            'cover_letter' => ['nullable', 'string'],
+            'resume' => ['required', 'file', 'mimes:pdf,doc,docx', 'max:2048'], 
+            'cover_letter' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:2048'], // Changed from string to file
         ]);
         
         // 3. Prevent duplicate applications
@@ -31,14 +31,23 @@ class ApplicationController extends Controller
         // 4. Store the resume file
         $resumePath = $request->file('resume')->store('resumes', 'public');
 
-        // 5. Create the application record
+        // 5. Store the cover letter file (if it exists)
+        $coverLetterPath = null;
+        if ($request->hasFile('cover_letter')) {
+            $coverLetterPath = $request->file('cover_letter')->store('cover_letters', 'public');
+        }
+
+        // 6. Create the application record
         Auth::user()->applications()->create([
             'job_posting_id' => $job->id,
             'resume_path' => $resumePath,
-            'cover_letter' => $request->cover_letter,
+            'cover_letter_path' => $coverLetterPath, // We save the path now
+            'status' => 'submitted',
         ]);
 
-        // 6. Redirect back with a success message
-        return redirect()->route('jobs.show', $job)->with('status', 'Your application has been submitted successfully!');
+        // 7. Redirect with a success message
+        // Redirecting to 'my applications' is usually better UX than staying on the job page
+        return redirect()->route('applicant.applications.index')
+            ->with('status', 'Your application has been submitted successfully!');
     }
 }

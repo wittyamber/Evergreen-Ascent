@@ -57,23 +57,56 @@
                                 @if($hasApplied)
                                     <p class="text-sm font-medium text-green-600">You applied for this position on {{ auth()->user()->applications()->where('job_posting_id', $job->id)->first()->created_at->format('M d, Y') }}.</p>
                                 @else
-                                    <form method="POST" action="{{ route('applications.store', $job) }}" enctype="multipart/form-data">
+                                    <form method="POST" action="{{ route('applications.store', $job) }}" enctype="multipart/form-data" class="space-y-6">
                                         @csrf
-                                        <!-- Resume -->
+                                        <!-- Resume Upload-->
+                                        <div class="mb-6">
+                                            <label for="resume" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Upload Resume (Required) <span class="text-red-500">*</span>
+                                            </label>
+                                            
+                                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-emerald-500 transition relative">
+                                                <div class="space-y-1 text-center">
+                                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                    </svg>
+                                                    <div class="flex text-sm text-gray-600 justify-center">
+                                                        <!-- Removed 'sr-only' and special label wrapping. Just a clean input. -->
+                                                        <input id="resume" 
+                                                            name="resume" 
+                                                            type="file" 
+                                                            required 
+                                                            accept=".pdf,.doc,.docx"
+                                                            class="block w-full text-sm text-gray-500
+                                                                    file:mr-4 file:py-2 file:px-4
+                                                                    file:rounded-full file:border-0
+                                                                    file:text-sm file:font-semibold
+                                                                    file:bg-emerald-50 file:text-emerald-700
+                                                                    hover:file:bg-emerald-100">
+                                                    </div>
+                                                    <p class="text-xs text-gray-500">PDF, DOC, DOCX up to 2MB</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Cover Letter Upload (New & Optional) -->
                                         <div>
-                                            <x-input-label for="resume" :value="__('Upload Resume (PDF, DOC, DOCX)')" />
-                                            <input id="resume" name="resume" type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100 mt-1" required>
-                                            <x-input-error :messages="$errors->get('resume')" class="mt-2" />
+                                            <label class="block text-sm font-medium text-gray-700">
+                                                Cover Letter (Optional)
+                                            </label>
+                                            <p class="text-xs text-gray-500 mb-2">Upload a specific cover letter for this position.</p>
+                                            
+                                            <input type="file" 
+                                                name="cover_letter" 
+                                                id="cover_letter"
+                                                accept=".pdf,.doc,.docx"
+                                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
                                         </div>
-                                        <!-- Cover Letter -->
-                                        <div class="mt-4">
-                                            <x-input-label for="cover_letter" :value="__('Cover Letter (Optional)')" />
-                                            <textarea name="cover_letter" id="cover_letter" rows="4" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('cover_letter') }}</textarea>
-                                        </div>
-                                        <div class="flex items-center justify-end mt-4">
-                                            <x-primary-button>
-                                                {{ __('Submit Application') }}
-                                            </x-primary-button>
+
+                                        <div class="flex justify-end">
+                                            <button type="submit" class="bg-emerald-600 border border-transparent rounded-md shadow-sm py-2 px-4 inline-flex justify-center text-sm font-medium text-white hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+                                                Submit Application
+                                            </button>
                                         </div>
                                     </form>
                                 @endif

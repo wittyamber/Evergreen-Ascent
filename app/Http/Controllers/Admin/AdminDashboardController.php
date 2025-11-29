@@ -12,7 +12,7 @@ class AdminDashboardController extends Controller
     {
         $stats = [
             'hr_count' => \App\Models\User::where('role', 'hr')->count(),
-            'applicant_count' => \App\Models\User::where('role', 'applicant')->count(), // Assuming you have applicants
+            'applicant_count' => \App\Models\User::where('role', 'applicant')->count(), 
             'log_count' => AuditLog::count(),
         ];
 

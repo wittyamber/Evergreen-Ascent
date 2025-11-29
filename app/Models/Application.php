@@ -22,6 +22,7 @@ class Application extends Model
         'user_id',
         'job_posting_id',
         'resume_path',
+        'cover_letter_path',
         'cover_letter',
         'status',
     ];

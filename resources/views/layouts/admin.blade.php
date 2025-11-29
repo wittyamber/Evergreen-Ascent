@@ -43,6 +43,14 @@
                     HR Users
                 </a>
 
+                <!-- Audit Logs (NEW - Was missing in sidebar) -->
+                <a href="{{ route('admin.audit.logs') }}" 
+                   class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 
+                   {{ request()->routeIs('admin.audit.logs') ? 'bg-emerald-600 text-white shadow-md' : 'hover:bg-slate-800 hover:text-white' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    Audit Logs
+                </a>
+
                 <!-- System Settings -->
                 <a href="{{ route('admin.settings.index') }}" 
                    class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors duration-200 
@@ -57,11 +65,18 @@
             <div class="p-4 border-t border-slate-800">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-emerald-900 text-emerald-300 flex items-center justify-center font-bold">
-                        {{ substr(Auth::user()->name, 0, 1) }}
+                        {{ substr(Auth::user()->first_name, 0, 1) }}
                     </div>
                     <div class="flex-1">
-                        <p class="text-sm font-semibold text-white">{{ Auth::user()->name }}</p>
+                        <!-- Fixed: Use first_name + last_name instead of name -->
+                        <p class="text-sm font-semibold text-white">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</p>
                         <p class="text-xs text-slate-500">Super Admin</p>
+                        
+                        <!-- Logout Button (Tiny Text Link) -->
+                        <form method="POST" action="{{ route('logout') }}" class="mt-1">
+                            @csrf
+                            <button type="submit" class="text-xs text-red-400 hover:text-red-300 hover:underline">Log Out</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -74,9 +89,12 @@
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     @yield('header')
                 </h2>
-                <a href="{{ route('dashboard') }}" class="text-sm text-gray-500 hover:text-emerald-600">
-                    &larr; Back to Main Site
-                </a>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm text-gray-400">{{ now()->format('l, F j, Y') }}</span>
+                    <a href="{{ route('home') }}" class="text-sm text-gray-500 hover:text-emerald-600 flex items-center gap-1">
+                        View Public Site &rarr;
+                    </a>
+                </div>
             </header>
 
             <!-- SUCCESS MESSAGE ALERT -->
@@ -87,7 +105,7 @@
                             <p class="font-bold">Success</p>
                             <p>{{ session('success') }}</p>
                         </div>
-                        <span class="text-2xl cursor-pointer" onclick="this.parentElement.style.display='none';">&times;</span>
+                        <span class="text-2xl cursor-pointer hover:text-emerald-900" onclick="this.parentElement.parentElement.style.display='none';">&times;</span>
                     </div>
                 </div>
             @endif

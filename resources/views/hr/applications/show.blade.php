@@ -130,14 +130,36 @@
             <!-- RIGHT COLUMN: Content -->
             <div class="lg:col-span-2 space-y-8">
                 
-                <!-- 1. Cover Letter -->
+                <!-- Cover Letter Section -->
                 <div class="bg-white shadow-lg rounded-xl border border-gray-100 p-8">
                     <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
                         <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         Cover Letter
                     </h3>
-                    <div class="bg-gray-50 rounded-lg p-6 text-gray-700 text-sm leading-relaxed whitespace-pre-wrap border border-gray-100 font-serif">
-                        {{ $application->cover_letter ?? 'No cover letter submitted.' }}
+                    
+                    <div class="bg-gray-50 rounded-lg p-6 border border-gray-100">
+                        @if($application->cover_letter_path)
+                            <!-- If file exists, show download button -->
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <svg class="w-8 h-8 text-red-500 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">Cover_Letter.pdf</p>
+                                        <p class="text-xs text-gray-500">Attached document</p>
+                                    </div>
+                                </div>
+                                <a href="{{ Storage::url($application->cover_letter_path) }}" target="_blank" class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none">
+                                    Download
+                                </a>
+                            </div>
+                        @elseif($application->cover_letter)
+                            <!-- Fallback for old applications (Text) -->
+                            <div class="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap font-serif">
+                                {{ $application->cover_letter }}
+                            </div>
+                        @else
+                            <p class="text-sm text-gray-500 italic">No cover letter submitted.</p>
+                        @endif
                     </div>
                 </div>
 

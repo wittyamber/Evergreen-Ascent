@@ -50,14 +50,6 @@
 
                     <!-- APPLICANT LINKS -->
                     @if(auth()->user()->role === 'applicant')
-                        <!-- 1. Dashboard -->
-                        <!-- <a href="{{ route('dashboard') }}" 
-                        class="inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition duration-150 ease-in-out 
-                        {{ request()->routeIs('dashboard') 
-                            ? 'border-white text-white' 
-                            : 'border-transparent text-emerald-200 hover:text-white hover:border-emerald-300' }}">
-                            {{ __('Dashboard') }}
-                        </a> -->
 
                         <!-- 2. Browse Jobs -->
                         <a href="{{ route('jobs.index') }}" 
