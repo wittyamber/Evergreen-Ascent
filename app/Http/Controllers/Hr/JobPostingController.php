@@ -19,7 +19,16 @@ class JobPostingController extends Controller
      */
     public function index()
     {
-        //
+        // Get logged-in HR user
+        $user = \Illuminate\Support\Facades\Auth::user();
+
+        // Fetch jobs with the count of applications (Optimization)
+        $jobs = $user->jobPostings()
+                    ->withCount('applications') // <--- This adds an 'applications_count' attribute
+                    ->latest()
+                    ->paginate(10);
+
+        return view('hr.jobs.index', compact('jobs'));
     }
 
     /**
@@ -39,6 +48,7 @@ class JobPostingController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'location' => 'required|string|max:255',
+            'salary_range' => 'nullable|string|max:255',
             'type' => 'required|in:Full-time,Part-time,Contract,Internship',
             'description' => 'required|string',
         ]);
@@ -47,6 +57,7 @@ class JobPostingController extends Controller
         $request->user()->jobPostings()->create([
             'title' => $validated['title'],
             'location' => $validated['location'],
+            'salary_range' => $validated['salary_range'],
             'type' => $validated['type'],
             'description' => $validated['description'],
             // 'status' will default to 'Draft' as we defined in the migration
@@ -87,6 +98,7 @@ class JobPostingController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'location' => 'required|string|max:255',
+            'salary_range' => 'nullable|string|max:255',
             'type' => 'required|in:Full-time,Part-time,Contract,Internship',
             'description' => 'required|string',
             'status' => 'required|in:Draft,Active,Archived',
