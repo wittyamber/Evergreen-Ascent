@@ -21,7 +21,8 @@ class InterviewController extends Controller
         //$applications = $user->applications()->with('jobPosting', 'interviews')->latest()->get();
 
         $upcomingInterviews = Interview::where('interviewer_id', auth()->id())
-                                       ->where('status', 'Scheduled')
+                                       // FIX: Check for BOTH 'Scheduled' AND 'Confirmed'
+                                       ->whereIn('status', ['Scheduled', 'Confirmed']) 
                                        ->where('scheduled_at', '>=', now())
                                        ->with('application.user', 'application.jobPosting')
                                        ->orderBy('scheduled_at', 'asc')

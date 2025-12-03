@@ -81,19 +81,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Applying for a job
+    // 1. Applying for a job
     Route::post('/jobs/{job}/apply', [ApplicationController::class, 'store'])->name('applications.store');
     
-    // Managing Applications & Interviews
+    // 2. Listing Applications
     Route::get('/my-applications', [ApplicantAppController::class, 'index'])->name('applicant.applications.index');
     
-    // Interview Actions
-    Route::put('/interviews/{interview}/confirm', [ApplicantInterviewController::class, 'update'])->name('applicant.interviews.update');
+    // 3. Single Application Details (Chat & Status)
+    Route::get('/my-applications/{application}', [ApplicantAppController::class, 'show'])->name('applicant.applications.show');
+    
+    // 4. Interview Actions
+    // CONFIRM Route (Points to 'confirm' method)
+    Route::put('/interviews/{interview}/confirm', [ApplicantInterviewController::class, 'confirm'])->name('applicant.interviews.confirm');
+    
+    // RESCHEDULE Routes
     Route::get('/interviews/{interview}/reschedule', [ApplicantInterviewController::class, 'showRescheduleForm'])->name('applicant.interviews.reschedule.show');
     Route::put('/interviews/{interview}/reschedule', [ApplicantInterviewController::class, 'processRescheduleRequest'])->name('applicant.interviews.reschedule.store');
-
-    Route::get('/my-applications/{application}', [ApplicantAppController::class, 'show'])
-        ->name('applicant.applications.show');
 });
 
 /*

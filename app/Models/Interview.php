@@ -27,6 +27,11 @@ class Interview extends Model
         'status',
     ];
 
+    public function interviews()
+    {
+        return $this->hasMany(Interview::class);
+    }
+
     /**
      * The attributes that should be cast.
      *
